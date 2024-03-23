@@ -1,18 +1,31 @@
-# Configuration file for wcsimroot_to_root 
+#######
+#
+# Documentation about this file :
+#   Configuration file for wcsimroot_to_root 
+#
+#######
 
-WCSIMROOT_FILE_PATH=/sps/t2k/quach/Simulation/Simu_bis/wcsim_e_2k_100to1000_0.root
-RESULT_FILE_NAME=/sps/t2k/eleblevec/datasets/root_datasets/e_2k_100to_1000.root
 
-# Other parameters related to your needs
-# if you don't need them you just have to comment them with '#'
+###############
+# PATHS SETTINGS
+###############
+
+WCSIMROOT_FILE_PATH=/sps/t2k/eleblevec/datasets/wcsimroot_datasets/wcsim_HK_no_mPMTs_e500MeV_20kevents.root
+RESULT_FILE_PATH=/sps/t2k/eleblevec/datasets/root_datasets/HK_no_mPMTs_e500MeV_10events.root
+
+
+###############
+# PARAMETERS
+###############
+
 EVENT_TYPE=1
-MAX_HITS_SIG=10000
-
-
-
+MAX_HITS_SIG=15000
 #MAX_HITS_BG=2000
 #MIN_DURATION_BG=9.999e5
 
+###############
+# VERBOSE
+###############
 # Must be set to a value (either 0, 1 or 2)
 VERBOSE=1
 

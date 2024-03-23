@@ -67,12 +67,12 @@ vector<double> get_signal_from_WCSim(string infilename, string outfilename, cons
   int n_hits;                                           //< Number of hits in event
   float charge[maxHitsSig], time[maxHitsSig];       //< Charge and time values of each hit
   float hitx[maxHitsSig], hity[maxHitsSig], hitz[maxHitsSig]; //< x, y, z arrays of hit coordinates
-
+  float vertex[3];                                      //< x, y, z coordinates of vertex
+  float particleDir[3];
 
   // Variables pour l'instant pas stockées
   float energy;                                         //< Energy of the incoming particle 
   int tubeIds[maxHitsSig];                              //< tubeID of each PMT registering a photo-electron
-  float vertex[3];                                      //< x, y, z coordinates of gamma vertex
   float vertex_0[3];                                    //< x, y, z coordinates of randomly reconstructed neutron vertex
   
 
@@ -126,14 +126,15 @@ vector<double> get_signal_from_WCSim(string infilename, string outfilename, cons
   outtree->Branch("time", time, "time[n_hits]/F");
   outtree->Branch("energy", &energy, "energy/F");
 
+  outtree->Branch("particleDir", particleDir, "particleDir[3]/D");  
+  outtree->Branch("vtx", vertex, "vtx[3]/F");
+  
 
   // Branches for event display & analysis (in case of a classification model)
   // outtree->Branch("dwall", &dwall, "dwall/d");
   // outtree->Branch("twall", &twall, "twall/d");
   // outtree->Branch("lconv", &lconv, "lconv/d");
-  // outtree->Branch("particleDir", particleDir, "particleDir[3]/D");  
-  // outtree->Branch("vtx", vertex, "vtx[3]/F");
-  // outtree->Branch("vtx0", vertex_0, "vtx_0[3]/F");
+  //outtree->Branch("vtx0", vertex_0, "vtx_0[3]/F");
   
 
   /*************************************************************************/
@@ -188,7 +189,12 @@ vector<double> get_signal_from_WCSim(string infilename, string outfilename, cons
       continue; 
     }
 
-    // Sinon on parcourt les données de l'évènement
+    // Get the vertex of the mother particle
+    for (int k = 0; k < 3; k++){
+      vertex[k] = wcsimrootevent->GetVtx(k);
+    }
+
+    // On parcourt les données de l'évènement
     for(int j=0 ; j<n_hits ; j++) {
 
       Hit = ( wcsimrootevent->GetCherenkovDigiHits() ) -> At(j);
@@ -221,6 +227,10 @@ vector<double> get_signal_from_WCSim(string infilename, string outfilename, cons
 
       if (wcsimroottrack->GetIpnu() != 0 && wcsimroottrack->GetFlag() == -1) {
         energy = wcsimroottrack->GetE();
+        cout << "Event #" << i << ", found " << n_hits << " Cherenkov hits" << endl;
+        particleDir[0] = wcsimroottrack->GetDir(0);
+        particleDir[1] = wcsimroottrack->GetDir(1);
+        particleDir[2] = wcsimroottrack->GetDir(2);
         break; 
         // C'est quoi Ipnu, c'est quoi Getflag, c'est quoi le but de cette ligne (et de cette boucle for)
         // Hypothèse : y'a qu'un seul k qui vérifie cette condition, si on l'a trouvé on peut sortir de la boucle for
@@ -299,7 +309,7 @@ int main(int argc, char* argv[]) {
 
     // Parameters for get_signal_from_WCSim
     const string input_file_path  = configValues["WCSIMROOT_FILE_PATH"];
-    const string output_file_path = configValues["RESULT_FILE_NAME"];   
+    const string output_file_path = configValues["RESULT_FILE_PATH"];   
 
     // Call get_sign_from_wcsim with the extracted parameters
 
