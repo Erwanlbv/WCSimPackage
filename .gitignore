@@ -1,2 +1,6 @@
 # outputs of any tools
 outputs/
+
+
+# output of jobs
+*.log
