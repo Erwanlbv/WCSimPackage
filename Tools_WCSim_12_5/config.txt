@@ -10,8 +10,8 @@
 # PATHS SETTINGS
 ###############
 
-WCSIMROOT_FILE_PATH=/sps/t2k/eleblevec/datasets/wcsimroot_datasets/wcsim_HK_no_mPMTs_e500MeV_20kevents.root
-RESULT_FILE_PATH=/sps/t2k/eleblevec/datasets/root_datasets/HK_no_mPMTs_e500MeV_10events.root
+WCSIMROOT_FILE_PATH=/sps/t2k/eleblevec/WCSimPackage/outputs/wcsimroot_outputs/wcsim_e500MeV_10events.root
+RESULT_FILE_PATH=/sps/t2k/eleblevec/WCSimPackage/outputs/root_outputs/e500MeV_withIds.root
 
 
 ###############
@@ -28,6 +28,7 @@ MAX_HITS_SIG=15000
 ###############
 # Must be set to a value (either 0, 1 or 2)
 VERBOSE=1
+
 
 
 
