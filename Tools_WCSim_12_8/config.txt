@@ -1,0 +1,34 @@
+#######
+#
+# Documentation about this file :
+#   Configuration file for wcsimroot_to_root 
+#
+#######
+
+
+###############
+# PATHS SETTINGS
+###############
+
+WCSIMROOT_FILE_PATH=/sps/t2k/eleblevec/WCSimPackage/outputs/wcsimroot_outputs/wcsim_e500MeV_10events.root
+RESULT_FILE_PATH=/sps/t2k/eleblevec/WCSimPackage/outputs/root_outputs/e500MeV_withIds.root
+
+
+###############
+# PARAMETERS
+###############
+
+EVENT_TYPE=1
+MAX_HITS_SIG=15000
+#MAX_HITS_BG=2000
+#MIN_DURATION_BG=9.999e5
+
+###############
+# VERBOSE
+###############
+# Must be set to a value (either 0, 1 or 2)
+VERBOSE=1
+
+
+
+
