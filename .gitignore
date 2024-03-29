@@ -3,6 +3,7 @@ playground/
 
 # scripts of Simulation to ignore
 Simulation/source_scripts/execute_wcte_sim.sh
+Simulation/Stacking_Only_Problem
 
 # output of jobs
 *.log
