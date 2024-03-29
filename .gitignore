@@ -1,6 +1,10 @@
 # outputs of any tools
-outputs/
+playground/
 
+# scripts of Simulation to ignore
+Simulation/source_scripts/execute_wcte_sim.sh
 
 # output of jobs
 *.log
+
+
