@@ -164,13 +164,27 @@ vector<double> get_signal_from_WCSim(string infilename, string outfilename, cons
 
   geotree->GetEntry(0);   // Sert à quoi ?
   nevents = wcsimT->GetEntries();	
+
+
+
   if (verbose >= 1) {
-  cout << "\n -- Looking for data in the file : " << infilename << endl;
-  cout << " -- The file contains " << nevents << " events  -- \n" << endl;
+    vector<double> PMTradius(2);
+    
+    PMTradius[0]=geo->GetWCPMTRadius();
+    PMTradius[1]=geo->GetWCPMTRadius(true);
+    cout << "\nNumber of PMTs of 1st type = " << geo->GetWCNumPMT() << ", radius = " << PMTradius[0] << endl;
+    cout << "Number of PMTs of 2nd type = " << geo->GetWCNumPMT(true) << ", radius = " << PMTradius[1] <<endl;
+
+    cout << "\n -- Looking for data in the file : " << infilename << endl;
+    cout << " -- The file contains " << nevents << " events  -- \n" << endl;
 
     if (verbose >= 2){
       cout << " -- Event type : " << eventType << "\n" << endl;
     }
+  }
+
+  if (verbose >= 1) {
+
   }
   
   for(int i=0 ; i<nevents ; i++)
@@ -202,7 +216,7 @@ vector<double> get_signal_from_WCSim(string infilename, string outfilename, cons
 
       Hit = ( wcsimrootevent->GetCherenkovDigiHits() ) -> At(j);
       cDigiHit = dynamic_cast<WCSimRootCherenkovDigiHit*> (Hit);
-      hitpmt = geo->GetPMT(cDigiHit -> GetTubeId() - 1, false);
+      hitpmt = geo->GetPMT(cDigiHit -> GetTubeId() - 1, false); // Pourquoi - 1 ? Est-ce que one_indexe=False dans watchaml alors ?
 
       charge[j]  = cDigiHit->GetQ();
       time[j]    = cDigiHit->GetT();

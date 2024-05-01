@@ -8,7 +8,7 @@ module add Analysis/root/6.24.06
 wcsim_bin_path=/sps/t2k/bquilain/HK/Reconstruction/official_2023/Gonzalo/WCSim-home/WCSim_build/mydir/bin
 source $wcsim_bin_path/this_wcsim.sh
 
-export convert_bin=/sps/t2k/eleblevec/WCSimPackage/WCSimTools_12_5/bin/wcsimroot_to_root
+export convert_bin=/sps/t2k/eleblevec/WCSimPackage/Tools_WCSim_12_5/bin/wcsimroot_to_root
 
 
 # ------- REMARKS -------

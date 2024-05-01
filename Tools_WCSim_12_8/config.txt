@@ -10,8 +10,8 @@
 # PATHS SETTINGS
 ###############
 
-WCSIMROOT_FILE_PATH=/sps/t2k/eleblevec/WCSimPackage/outputs/wcsimroot_outputs/wcsim_e500MeV_10events.root
-RESULT_FILE_PATH=/sps/t2k/eleblevec/WCSimPackage/outputs/root_outputs/e500MeV_withIds.root
+WCSIMROOT_FILE_PATH=/sps/t2k/eleblevec/WCSimPackage/playground/wcsimroot_outputs/wcsim_e500MeV_10events.root
+RESULT_FILE_PATH=/sps/t2k/eleblevec/WCSimPackage/playground/new_Makefile.root
 
 
 ###############

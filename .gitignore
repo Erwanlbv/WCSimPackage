@@ -1,5 +1,5 @@
 # outputs of any tools
-playground/
+playground/*
 
 # Simulation folder 
 Simulation/source_scripts/execute_wcte_sim.sh
@@ -9,6 +9,10 @@ Simulation/Stacking_Only_Problem
 /Tools_WCSim_12_5/christine
 /Tools_WCSim_12_8/christine
 
+# detector simulation folders
+/Simulation/detector_hk/
+/Simulation/detector_sk/
+/Simulation/detector_wcte/
 
 # output of jobs
 *.log
