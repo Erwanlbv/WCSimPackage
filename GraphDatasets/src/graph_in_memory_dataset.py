@@ -10,7 +10,7 @@ from torch_geometric.data import InMemoryDataset, Data
 from src.root_dataset import RootDataset
 import src.data_utils as du
 from src import transformations
-from src.extremum_finder import ExtremumFinder
+from src.extrema_finder import ExtremaFinder
 
 
 # Remarque : Si on souhaite transformer les données il faut créer une fonction transform
@@ -164,14 +164,14 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
         data_list = [] 
 
         #ExtremumFinder is a class to find the extrema of each given argument (here train, edge and y)
-        extremum=ExtremumFinder(train=self.train_keys, edge=self.edge_keys, y=self.label_keys)
+        extrema=ExtremaFinder(train=self.train_keys, edge=self.edge_keys, y=self.label_keys)
 
         for i in range(num_entries):
             x   = du.squeeze_and_convert(data_dict, self.train_keys, index=i, to_tensor=self.to_torch_tensor, to_type=torch.float32)
             y   = du.squeeze_and_convert(data_dict, self.label_keys, index=i, to_tensor=self.to_torch_tensor, to_type=torch.float32)
             pos = du.squeeze_and_convert(data_dict, self.edge_keys, index=i, to_tensor=self.to_torch_tensor, to_type=torch.float32)
             
-            extremum.compute_extremum(train=x, edge=pos, y=y)
+            extrema.compute_extrema(train=x, edge=pos, y=y)
             
             graph = Data(x=x, y=y, pos=pos) # for .pos see torch_geometric.transforms.KNNGraph 
             data_list.append(graph)
@@ -185,7 +185,7 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
             if (i + 1) % self.nb_datapoints  == 0 :
                 break
 
-        extremum.print_extremum()
+        extrema.print_extrema()
 
         if self.pre_transform is not None:
             data_list = [self.pre_transform(data) for data in data_list]
