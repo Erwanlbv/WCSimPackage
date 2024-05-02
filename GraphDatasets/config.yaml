@@ -1,0 +1,14 @@
+root_file_path: /sps/t2k/eleblevec/datasets/root_datasets/before_april/e_mu_500MeV_10events_each.root
+tree_name: 'root_event' # depending on wcsimroot_to_root
+
+graph_dataset_path: /pbs/home/c/cehrhardt/rootdataset_git/WCSimPackage/GraphDatasets
+train_keys: ['hitx', 'hity', 'hitz', 'time', 'charge']
+label_keys: ['eventType']
+edge_keys: ['hitx', 'hity', 'hitz']
+to_torch_tensor: True
+
+verbose: 1
+
+# nb_datapoints: 10
+
+        
