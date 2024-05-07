@@ -35,8 +35,7 @@ to_torch_tensor: True
 
 verbose: 1
 ```
-
-Here the number of datapoint is not specified setting it automatically to 5 000 000. 
+#### Warning : If any transform argument is needed, it should NOT be passed here but at run time inside CAVERNS configuration files.
 
 ## Execution
 In order the information returned during the execution of the code are : 
