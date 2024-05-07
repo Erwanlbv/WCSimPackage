@@ -3,3 +3,6 @@ processed/
 
 #pycache
 src/__pycache__
+
+# config files
+*.yaml
