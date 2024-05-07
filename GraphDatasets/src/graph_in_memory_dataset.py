@@ -6,16 +6,16 @@ import torch
 from torch_geometric.data import InMemoryDataset, Data
 
 # import the RootInterface
-from src.root_dataset import RootDataset
+from src.RootInterface import RootInterface
 
-# fonctions to manage the .root data after extraction
+# fonctions to manage the data
 import src.data_utils as du
-from src.extrema_finder import ExtremaFinder
+from src.data_utils import ExtremaFinder
 
 
 
 
-class GraphInMemoryDataset(RootDataset, InMemoryDataset):
+class GraphInMemoryDataset(RootInterface, InMemoryDataset):
     r"""" Last update of this documentation : //2024    
     Args:
             root_file_path: str
@@ -104,7 +104,7 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
         ### --- still it seems the most comprehensible way for everyone to me
 
         # Instantiate the RootDataset class (to read the .root file)
-        RootDataset.__init__(
+        RootInterface.__init__(
             self,
             root_file_path=self.root_file_path,
             tree_name=self.tree_name,
@@ -195,9 +195,10 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
         Note : Most of the loss of torch expect a float format, so even if the labels are stored as int, they will be converted to float when called.
         """
 
-        # Caution : If transform functions are given in __init__(), this data object will NOT
-        # have already be transformed. See the torch_geometric.Data.Dataset.__get_item__()
-         
+        # Caution : If transform functions are given in __init__(),
+        # this data object will NOT have already be transformed.
+        # See torch_geometric.Data.Dataset.__getitem__() l.292 - 293
+        # Where you can notice it is transformed AFTER self.get(..)
         data = super().get(idx)
         data.idx = idx
 
@@ -230,14 +231,14 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
 
 
 # Deprecated function kept if ever usefull in the future
-def graph_initialize(self, train_keys, label_keys, edge_keys, to_torch_tensor):
-    """
-    Method to initialize variables associated to the creation of a graph given a .root file.
-    I. e. the values uproot is going to look for.
-    """
-    self.train_keys   = train_keys
-    self.label_keys   = label_keys
-    self.edge_keys    = edge_keys
+# def graph_initialize(self, train_keys, label_keys, edge_keys, to_torch_tensor):
+#     """
+#     Method to initialize variables associated to the creation of a graph given a .root file.
+#     I. e. the values uproot is going to look for.
+#     """
+#     self.train_keys   = train_keys
+#     self.label_keys   = label_keys
+#     self.edge_keys    = edge_keys
 
-    self.to_torch_tensor     = to_torch_tensor
-    self.graph_init = True
+#     self.to_torch_tensor     = to_torch_tensor
+#     self.graph_init = True

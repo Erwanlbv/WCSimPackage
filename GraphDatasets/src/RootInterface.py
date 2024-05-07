@@ -13,25 +13,23 @@ for batch in events.iterate(step_size=500):
 """
 
 
-
-class RootDataset:
+class RootInterface:
 
     def __init__(
             self,
             root_file_path,
             tree_name,
+            nb_datapoints,
             verbose=0,
-            nb_datapoints=None,
             entry_start=None, # not used, but kept for future if needed
-            entry_stop=None,
-            **kwargs
+            entry_stop=None,  # same
         ):
         
         self.root_file_path = root_file_path
         self.tree_name      = tree_name
         self.verbose        = verbose
 
-        self.nb_datapoints  = nb_datapoints # Should never be None
+        self.nb_datapoints  = nb_datapoints
 
 
     def extract_data(self, keys):
@@ -57,7 +55,7 @@ class RootDataset:
             
             for key, value in data_dict.items():
                 print(f"\n[RootInterface] Key : {key}")
-                print(f"   Value (shape) : {value.shape}")
+                #print(f"   Value (shape) : {value.shape}")
                 
                 if isinstance(value, np.ndarray):
                     print(f"   Value is a np.ndarray.\n   Value[0].shape : {value[0].shape}")
