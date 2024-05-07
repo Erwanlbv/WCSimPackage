@@ -1,0 +1,32 @@
+verbose: 1
+
+# Variables to manage the root file
+root_file_path: /sps/t2k/eleblevec/datasets/root_datasets/before_april/e_mu_500MeV_10events_each.root
+tree_name: 'root_event' # depending on wcsimroot_to_root
+
+# Where to save the dataset containing the graphs
+save_graph_path: /sps/t2k/eleblevec/WCSimPackage/GraphDatasets
+
+# How many events to store (starting from event 0)
+# null means all the events
+nb_datapoints: null
+
+train_data_info: 
+  keys : ['time', 'charge']
+  types: ['float32', 'float32']
+
+label_data_info:
+  keys : ['eventType']
+  types: ['int16']
+
+edge_data_info:
+  keys : ['hitx', 'hity', 'hitz']
+  types: ['float16', 'float16', 'float16']
+
+# If the data shoudl be stored as torch.Tensor. 
+# For now only 'Yes' is supported
+to_torch_tensor: True
+
+
+
+        
