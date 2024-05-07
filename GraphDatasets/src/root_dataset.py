@@ -3,6 +3,17 @@ import numpy as np
 import uproot
 
 
+"""
+Note for future :
+If memory becomes a problem when loading, look at .iterate(step_size) 
+events = uproot.open("https://scikit-hep.org/uproot3/examples/Zmumu.root:events")
+for batch in events.iterate(step_size=500):
+    print(repr(batch))
+
+"""
+
+
+
 class RootDataset:
 
     def __init__(
@@ -10,12 +21,17 @@ class RootDataset:
             root_file_path,
             tree_name,
             verbose=0,
+            nb_datapoints=None,
+            entry_start=None, # not used, but kept for future if needed
+            entry_stop=None,
             **kwargs
         ):
         
         self.root_file_path = root_file_path
         self.tree_name      = tree_name
         self.verbose        = verbose
+
+        self.nb_datapoints  = nb_datapoints # Should never be None
 
 
     def extract_data(self, keys):
@@ -25,17 +41,27 @@ class RootDataset:
         with uproot.open(self.root_file_path) as root_file:
 
             root_tree   = root_file[self.tree_name]
-            num_entries = root_tree.num_entries
-            data_dict   = root_tree.arrays(keys, library='np')
+            num_entries = min(root_tree.num_entries, self.nb_datapoints)
+            data_dict   = root_tree.arrays(
+                keys, 
+                library='np', 
+                entry_stop=self.nb_datapoints
+            )
 
+            print("")
+            print(f"Keys is the root file : \n{root_tree.keys()}\n")
+            print(f"Type of each key : \n{root_tree.typenames()}\n")
 
+        # --- Display additionnal informations --- #
         if self.verbose >= 1:
-            print(f"Extracting keys from the .root file")
+            
             for key, value in data_dict.items():
-                print(f"\nLooking at key : {key} \n")
-                print(f"   Value (shape) : {value.shape} ")
+                print(f"\n[RootInterface] Key : {key}")
+                print(f"   Value (shape) : {value.shape}")
+                
                 if isinstance(value, np.ndarray):
-                    print(f"   Value is a np.ndarray. value[0].shape : {value[0].shape}")
+                    print(f"   Value is a np.ndarray.\n   Value[0].shape : {value[0].shape}")
 
+        print("")
         return num_entries, data_dict
     

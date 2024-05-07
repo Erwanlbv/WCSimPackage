@@ -1,11 +1,12 @@
+
+# basic imports 
 import argparse
 import yaml
 import pprint
 
+# GraphDataset imports
 from src.graph_in_memory_dataset import GraphInMemoryDataset
 
-
-# --- Code --- # 
 
 def main(config_path):
     
@@ -13,8 +14,7 @@ def main(config_path):
         config = yaml.safe_load(pre_config)
         
     pprint.pprint(config)
-    
-    dataset=GraphInMemoryDataset(**config)
+    GraphInMemoryDataset(**config)
 
 
 if __name__ == "__main__":

@@ -1,21 +1,18 @@
+
+# basic imports
 import numpy as np
-import uproot
-import pprint
 
 import torch
 from torch_geometric.data import InMemoryDataset, Data
 
-
-# Watchmal imports
+# import the RootInterface
 from src.root_dataset import RootDataset
+
+# fonctions to manage the .root data after extraction
 import src.data_utils as du
-from src import transformations
 from src.extrema_finder import ExtremaFinder
 
 
-# Remarque : Si on souhaite transformer les données il faut créer une fonction transform
-# et la passer en paramètre au début
-# (Ou surcharger la fonction get de InMemoryDataset)
 
 
 class GraphInMemoryDataset(RootDataset, InMemoryDataset):
@@ -23,7 +20,7 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
     Args:
             root_file_path: str
                 path to the existing .root file
-            graph_dataset_path: str 
+            save_graph_path: str 
                 Root directory where the dataset should be saved.
             tree_name: str
                 name of the tree to convert in the .root file
@@ -43,7 +40,8 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
                 Apply filters to the data before doing any pre_processing
             pre_transform (Optional) : (list of) function
                 pre_transform argument from torch_geometric InMemoryDataset class
-            transform: function
+                Will be used to compute the edges of the graph
+            transform (Optional): function
                 transform argument from torch_geometric InMemoryDataset class
 
     Notes :
@@ -61,10 +59,13 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
             self, 
             root_file_path : str,
             tree_name : str,
-            graph_dataset_path : str,
-            train_keys : list,
-            label_keys : list,
-            edge_keys : list,
+            save_graph_path : str,
+            # train_keys : list,
+            # label_keys : list,
+            # edge_keys : list,
+            train_data_info: dict,
+            label_data_info: dict,
+            edge_data_info: dict,
             to_torch_tensor : bool ,
             verbose : int,
             nb_datapoints=None,
@@ -81,22 +82,23 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
         # Variables to get the root file
         self.root_file_path = root_file_path
         self.tree_name = tree_name
-        self.graph_dataset_path = graph_dataset_path
+        self.save_graph_path = save_graph_path
 
         # Variable to create the graphs
         self.graph_init = False
 
-        self.train_keys   = train_keys
-        self.label_keys   = label_keys
-        self.edge_keys    = edge_keys
+        self.train_keys, self.train_types   = train_data_info['keys'], train_data_info['types']
+        self.label_keys, self.label_types   = label_data_info['keys'], label_data_info['types']
+        self.edge_keys, self.edge_types    = edge_data_info['keys'], edge_data_info['types']
 
-        self.to_torch_tensor     = to_torch_tensor
-        self.graph_init = True
+        self.to_torch_tensor  = to_torch_tensor
+        #self.graph_init       = True # Deprecated variable. Not used anymore
 
+        # Check how many events to store
         if nb_datapoints is not None  : 
             self.nb_datapoints = nb_datapoints
         else :
-            self.nb_datapoints = 5_000_000 # Number of events never reached
+            self.nb_datapoints = 100_000_000 # Number of events never reached
 
         ### --- Not the most clean way to call the __init__ of parents classes, but 
         ### --- still it seems the most comprehensible way for everyone to me
@@ -106,20 +108,23 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
             self,
             root_file_path=self.root_file_path,
             tree_name=self.tree_name,
-            verbose=verbose
+            verbose=self.verbose,
+            nb_datapoints=self.nb_datapoints
         )
 
         # Instantiate the PyG Dataset class
         # MUST BE AT THE END OF THE __INIT__ (JUST BEFORE THE self.load)
         InMemoryDataset.__init__(
             self,
-            root=self.graph_dataset_path, 
+            root=self.save_graph_path, 
             pre_filter=pre_filter,
             pre_transform=pre_transform, # Pre transform is applied to the data only once, before creating the grah
             transform=transform # composition of transforms argument should go there. (Équivalent to torchvision "transformCompose class")
         )
 
-        # Check if there is data in graph_dataset_path
+        # Check if there is data in save_graph_path
+        print(f"Processed_path: {self.processed_paths}")
+
         self.load(self.processed_paths[0])
 
 
@@ -132,27 +137,14 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
         return ['data.pt']
 
 
-    def graph_initialize(self, train_keys, label_keys, edge_keys, to_torch_tensor):
-        """
-        Method to initialize variables associated to the creation of a graph given a .root file.
-        I. e. the values uproot is going to look for.
-        """
-        self.train_keys   = train_keys
-        self.label_keys   = label_keys
-        self.edge_keys    = edge_keys
-
-        self.to_torch_tensor     = to_torch_tensor
-        self.graph_init = True
-
-
     def process(self):
+
         # If process() is called it means that path_to_gnn_dataset is empty
-        print(f"No graphs found in the path : {self.graph_dataset_path}.")
+        print(f"No graphs found in the path : {self.save_graph_path}.")
         print(f"Creating a dataset from the .root file : {self.root_file_path}")
-        
-        if not self.graph_init:
-            self.graph_initialize(self.train_keys, self.label_keys, self.edge_keys, self.to_torch_tensor)
-    
+
+        data_list = [] 
+
         if self.pre_filter is not None:
             pass 
             # Exemple : data_list = [data for data in data_list if self.pre_filter(data)]
@@ -161,31 +153,33 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
         all_keys = self.train_keys + self.label_keys + self.edge_keys
         num_entries, data_dict = self.extract_data(all_keys) # returns (number_of_events, a dict with all the data)
         
-        data_list = [] 
+        # Class to monitor extrema of the data
+        extrema_monitor = ExtremaFinder(*all_keys)
 
-        #ExtremumFinder is a class to find the extrema of each given argument (here train, edge and y)
-        extrema=ExtremaFinder(train=self.train_keys, edge=self.edge_keys, y=self.label_keys)
-
+        # The akward array format makes it not possible to use
+        # np.min directly on data_dict, neither flatten then np.min
+        # so we chose to compute the maxs / mins while iterating below 
         for i in range(num_entries):
-            x   = du.squeeze_and_convert(data_dict, self.train_keys, index=i, to_tensor=self.to_torch_tensor, to_type=torch.float32)
-            y   = du.squeeze_and_convert(data_dict, self.label_keys, index=i, to_tensor=self.to_torch_tensor, to_type=torch.float32)
-            pos = du.squeeze_and_convert(data_dict, self.edge_keys, index=i, to_tensor=self.to_torch_tensor, to_type=torch.float32)
-            
-            extrema.compute_extrema(train=x, edge=pos, y=y)
+
+            # Monitor extrema while they are numpy arrays
+            for key in all_keys:
+                extrema_monitor.update(key, data_dict[key][i])
+        
+            # Extract train, label and edge data and convert to torch.Tensor
+            x   = du.convert_from_keys(data_dict, index=i, keys=self.train_keys, to_types=self.train_types, to_tensor=self.to_torch_tensor)
+            y   = du.convert_from_keys(data_dict, index=i, keys=self.label_keys, to_types=self.label_types, to_tensor=self.to_torch_tensor)
+            pos = du.convert_from_keys(data_dict, index=i, keys=self.edge_keys, to_types=self.edge_types, to_tensor=self.to_torch_tensor)
             
             graph = Data(x=x, y=y, pos=pos) # for .pos see torch_geometric.transforms.KNNGraph 
             data_list.append(graph)
 
-
+            # --- Display --- #
             if self.verbose >= 1:
-                if i % ( int((num_entries / 2)) - 1) == 0 :
+                if i % int(num_entries / 2) == 0 :
                     print(f"\nÉvènement numéro {i}")
                     print(graph)
-    
-            if (i + 1) % self.nb_datapoints  == 0 :
-                break
 
-        extrema.print_extrema()
+        extrema_monitor.print_extrema()
 
         if self.pre_transform is not None:
             data_list = [self.pre_transform(data) for data in data_list]
@@ -233,3 +227,17 @@ class GraphInMemoryDataset(RootDataset, InMemoryDataset):
         print("Fonction to call if you want to add information on each Data object (i. e. each graph) in the data_list")
         print('You have to define this function in your child class')
         raise NotImplementedError
+
+
+# Deprecated function kept if ever usefull in the future
+def graph_initialize(self, train_keys, label_keys, edge_keys, to_torch_tensor):
+    """
+    Method to initialize variables associated to the creation of a graph given a .root file.
+    I. e. the values uproot is going to look for.
+    """
+    self.train_keys   = train_keys
+    self.label_keys   = label_keys
+    self.edge_keys    = edge_keys
+
+    self.to_torch_tensor     = to_torch_tensor
+    self.graph_init = True
