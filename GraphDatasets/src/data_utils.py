@@ -45,7 +45,8 @@ class ExtremaFinder:
         if not self.all_extrema[key]:
             self.all_extrema[key] = [x_min, x_max]
         else:
-            self.all_extrema[key] = [min(x_min, self.all_extrema[key][0]), max(x_max, self.all_extrema[key][1])]
+            self.all_extrema[key][0] = min(x_min, self.all_extrema[key][0])
+            self.all_extrema[key][1] = max(x_max, self.all_extrema[key][1])
 
 
     def print_extrema(self):
