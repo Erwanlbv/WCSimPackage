@@ -5,8 +5,8 @@ import yaml
 import pprint
 
 # GraphDataset imports
-from src.graph_in_memory_dataset import GraphInMemoryDataset
-
+from src.GraphInMemoryDataset import GraphInMemoryDataset
+#from src.NewGraphInMemoryDataset import GraphInMemoryDataset
 
 def main(config_path):
     
@@ -27,6 +27,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(f"Processing file at: {args.config_path}") 
+    print(f"\nProcessing file at: {args.config_path}") 
 
     main(args.config_path)

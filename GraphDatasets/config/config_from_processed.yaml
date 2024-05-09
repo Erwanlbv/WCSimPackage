@@ -1,0 +1,22 @@
+verbose: 1
+
+init_from_processed: True
+
+# Path to the folder containing the dataset
+graph_folder_path: /sps/t2k/eleblevec/WCSimPackage/GraphDatasets
+
+# Name of the dataset
+graph_file_names:
+  - data_1.pt
+
+
+# Note : nb_datapoints cannot be used 
+# on already processed graphs.
+# If you wish to load only part of 
+# the data, process it directly from 
+# the root files.
+
+
+
+
+        
