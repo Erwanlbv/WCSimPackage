@@ -13,19 +13,6 @@ import src.data_utils as du
 from src.data_utils import ExtremaFinder
 
 
-"""
-Notes :
-    About the graph creation from an event : decision NOT TO USE the pre_transform
-    parameter existing in the InMemoryDataset class of torch_geometric because 
-        1. The name would not be explicit
-        2. Is it supposed to be a list of functions to apply to the data points 
-            before turning them into a graph. So it should not changes the nature 
-            of the data. Or creating a graph changes the nature of the data.
-        3. There should be only one function to call to create a graph, so a list
-            of function is not adapted.
-"""
-
-
 class GraphInMemoryDataset(RootInterface, InMemoryDataset):
     r"""" Last update of this documentation : //2024    
     Args:
@@ -55,6 +42,23 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
             transform (Optional): function
                 transform argument from torch_geometric InMemoryDataset class
     """
+
+    def init_from_processed(
+            self,
+            graph_folder_path,
+            graph_file_names,
+            transform, 
+            verbose
+        ):
+
+        self.graph_folder_path = graph_folder_path
+        self.graph_file_names = graph_file_names
+        
+        self.transform = transform
+        self.verbose = verbose
+
+
+        
 
     def __init__(
             self, 
@@ -93,8 +97,8 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
         # Other
         self.verbose = verbose
         
-        # All the variables in the if below are used only by self.process()
-        # thus only necessary if we want to create graphs from .root files
+        # All the variables in if below are used only by self.process()
+        # thus only necessary if we want to create graphs
         if not init_from_processed:
             # self.process() will be called
 
@@ -111,6 +115,10 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
             self.edge_keys, self.edge_types   = edge_data_info['keys'], edge_data_info['types']
 
             self.to_torch_tensor  = to_torch_tensor
+
+
+        ### --- Not the most clean way to call the __init__ of parents classes, but 
+        ### --- still it seems the most comprehensible way for everyone to me
 
         # Est-ce que cette classe est vraiment utile ? 
         # ou une méthode / une simple instantiation 
@@ -132,11 +140,12 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
             transform=self.transform # composition of transforms argument should go there. (Équivalent to torchvision "transformCompose class")
         )
 
-        # Load everything onto the RAM
+        # Check if there is data in graph_folder_path
         self.load(self.processed_paths[0])
         
         print(f"\nProcessed path     : {self.processed_paths}")
         print(f"Len of the dataset : {self.len()}")
+        
         if root_folder_path:
             print(f"From .root files   : {self.raw_file_names}")
 
@@ -145,17 +154,19 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
     @property
     def raw_file_names(self):
         # A list of files which must be found to skip download()
-        # The fact that it points to existing file doesn't matter for torch_geometric
         #[self.root_folder_path + '/' + root_file_name for root_file_name in self.root_file_names]
         return self.root_file_names
 
     @property
     def processed_file_names(self):
         # A list of files which must be found to skip process()
-        # Where the graph data will be looked at
         return self.graph_file_names
 
     def process(self):
+
+        # If process() is called it means that path_to_gnn_dataset is empty
+        print(f"No graphs found in the path : {self.graph_folder_path}.")
+        print(f"Creating a dataset from the .root folder : {self.root_folder_path}")
 
         data_list = [] 
         all_keys = self.train_keys + self.label_keys + self.edge_keys
