@@ -39,6 +39,13 @@ edge_data_info:
 # For now only 'Yes' is supported
 to_torch_tensor: True
 
+# Transformations to apply only once to the data
+# during the graph processing
+pre_transform:
+  kNN: 
+    k: 8
+    num_workers: 1
+
 
 
         

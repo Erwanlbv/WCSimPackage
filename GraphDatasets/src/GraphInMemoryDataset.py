@@ -1,15 +1,16 @@
 
-# basic imports
+# generic imports
 import numpy as np
-
 import torch
+
+# pyg imports
 from torch_geometric.data import InMemoryDataset, Data
+from torch_geometric.transforms import KNNGraph
 
-# import the RootInterface
-from src.RootInterface import RootInterface
-
-# fonctions to manage the data
+# WCSimPackage imports
 import src.data_utils as du
+
+from src.RootInterface import RootInterface
 from src.data_utils import ExtremaFinder
 
 
@@ -110,6 +111,8 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
             self.label_keys, self.label_types = label_data_info['keys'], label_data_info['types']
             self.edge_keys, self.edge_types   = edge_data_info['keys'], edge_data_info['types']
 
+            if self.pre_transform is not None:
+                self.pre_transform = KNNGraph(**self.pre_transform['kNN']) # If one day we need more pre_transform, we'll use the TransformCompose from torch_geometric (see CAVERNS)
             self.to_torch_tensor  = to_torch_tensor
 
         # Est-ce que cette classe est vraiment utile ? 
@@ -135,11 +138,11 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
         # Load everything onto the RAM
         self.load(self.processed_paths[0])
         
+        # --- Display info --- #
         print(f"\nProcessed path     : {self.processed_paths}")
         print(f"Len of the dataset : {self.len()}")
         if root_folder_path:
-            print(f"From .root files   : {self.raw_file_names}")
-
+            print(f"From .root files   : {self.raw_file_names}")            
 
 
     @property
