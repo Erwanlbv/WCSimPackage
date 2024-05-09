@@ -17,21 +17,19 @@ class RootInterface:
 
     def __init__(
             self,
-            nb_datapoints,
             verbose=0,
             entry_start=None, # not used, but kept for future if needed
             entry_stop=None,  # same
         ):
 
         self.verbose        = verbose
-        self.nb_datapoints  = nb_datapoints
-
 
     def extract_data(
             self, 
             file_path,
             tree_name,
             keys: list[str],
+            nb_datapoints: int=100_000_000,
             ):
         r"""
         keys: (list) Contains all the keys (train, label, edge..) to lookup into the .root file 
@@ -39,7 +37,7 @@ class RootInterface:
         with uproot.open(file_path) as root_file:
 
             root_tree   = root_file[tree_name]
-            num_entries = min(root_tree.num_entries, self.nb_datapoints)
+            num_entries = min(root_tree.num_entries, nb_datapoints)
             data_dict   = root_tree.arrays(
                 keys, 
                 library='np', 
