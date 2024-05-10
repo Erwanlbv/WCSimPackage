@@ -1,5 +1,6 @@
 
 # generic imports
+import os.path as osp
 import numpy as np
 import torch
 
@@ -77,6 +78,8 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
             transforms= None  # Do not use. Only for compatibility with watchmal. In discussion with Nick to solve this redundancy.
     ):
 
+        self.verbose = verbose
+
         # Variables to get the root file
         self.root_folder_path  = root_folder_path
         self.root_file_names   = root_file_names 
@@ -91,9 +94,14 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
         self.pre_transform = pre_transform
         self.transform     = transform
 
-        # Other
-        self.verbose = verbose
-        
+        if init_from_processed:
+            f = osp.join(self.graph_folder_path, 'processed/pre_transform.pt')
+            if not osp.exists(f):
+                print(f"Cannot find the pre_transform argument at :{f}")
+                raise ValueError
+            else : self.pre_transform = torch.load(f)
+
+
         # All the variables in the if below are used only by self.process()
         # thus only necessary if we want to create graphs from .root files
         if not init_from_processed:
@@ -140,9 +148,11 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
         
         # --- Display info --- #
         print(f"\nProcessed path     : {self.processed_paths}")
+        print(f"Pre_transform :  {torch.load(f)}")
         print(f"Len of the dataset : {self.len()}")
         if root_folder_path:
-            print(f"From .root files   : {self.raw_file_names}")            
+            print(f"From .root files   : {self.raw_file_names}")   
+
 
 
     @property
