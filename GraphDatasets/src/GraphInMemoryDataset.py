@@ -5,6 +5,8 @@ import numpy as np
 import torch
 
 # pyg imports
+import torch_geometric.transforms as T
+
 from torch_geometric.data import InMemoryDataset, Data
 from torch_geometric.transforms import KNNGraph
 
@@ -94,6 +96,7 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
         self.pre_transform = pre_transform
         self.transform     = transform
 
+        # Load the pre_transform argument when init_from_processed
         if init_from_processed:
             f = osp.join(self.graph_folder_path, 'processed/pre_transform.pt')
             if not osp.exists(f):
@@ -119,8 +122,13 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
             self.label_keys, self.label_types = label_data_info['keys'], label_data_info['types']
             self.edge_keys, self.edge_types   = edge_data_info['keys'], edge_data_info['types']
 
+            # We consider only kNN as a possible pre_transform for now
             if self.pre_transform is not None:
-                self.pre_transform = KNNGraph(**self.pre_transform['kNN']) # If one day we need more pre_transform, we'll use the TransformCompose from torch_geometric (see CAVERNS)
+                pre_transform_list = [KNNGraph(**self.pre_transform['kNN'])]
+                self.pre_transform = T.Compose(pre_transform_list)
+            
+            # if self.pre_transform is not None:
+            #     self.pre_transform = KNNGraph(**self.pre_transform['kNN'])
             self.to_torch_tensor  = to_torch_tensor
 
         # Est-ce que cette classe est vraiment utile ? 
@@ -148,7 +156,7 @@ class GraphInMemoryDataset(RootInterface, InMemoryDataset):
         
         # --- Display info --- #
         print(f"\nProcessed path     : {self.processed_paths}")
-        print(f"Pre_transform :  {torch.load(f)}")
+        print(f"Pre_transform :  {self.pre_transform}")
         print(f"Len of the dataset : {self.len()}")
         if root_folder_path:
             print(f"From .root files   : {self.raw_file_names}")   
