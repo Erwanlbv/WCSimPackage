@@ -5,8 +5,7 @@ import yaml
 import pprint
 
 # GraphDataset imports
-from src.GraphInMemoryDataset import GraphInMemoryDataset
-#from src.NewGraphInMemoryDataset import GraphInMemoryDataset
+from src.root_to_graph import RootToGraph
 
 def main(config_path):
     
@@ -14,8 +13,8 @@ def main(config_path):
         config = yaml.safe_load(pre_config)
         
     pprint.pprint(config)
-    GraphInMemoryDataset(**config)
-
+    dataset = RootToGraph(**config)
+    
 
 if __name__ == "__main__":
 
