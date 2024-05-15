@@ -2,8 +2,64 @@
 import numpy as np
 import pprint
 
+import uproot
 import torch
 
+
+class RootInterface:
+    """
+    Note for future :
+    If memory becomes a problem when loading, look at .iterate(step_size) 
+    events = uproot.open("https://scikit-hep.org/uproot3/examples/Zmumu.root:events")
+    for batch in events.iterate(step_size=500):
+        print(repr(batch))
+    """
+
+    def __init__(
+            self,
+            verbose=0,
+            entry_start=None, # not used, but kept for future if needed
+            entry_stop=None,  # same
+        ):
+
+        self.verbose        = verbose
+
+    def extract_data(
+            self, 
+            file_path,
+            tree_name,
+            keys: list[str],
+            nb_datapoints: int=100_000_000,
+        ):
+        r"""
+        keys: (list) Contains all the keys (train, label, edge..) to lookup into the .root file 
+        """
+        with uproot.open(file_path) as root_file:
+
+            root_tree   = root_file[tree_name]
+            num_entries = min(root_tree.num_entries, nb_datapoints)
+            data_dict   = root_tree.arrays(
+                keys, 
+                library='np', 
+                entry_stop=num_entries
+            )
+
+            print("")
+            print(f"Keys is the root file : \n{root_tree.keys()}\n")
+            print(f"Type of each key : \n{root_tree.typenames()}\n")
+
+        # --- Display additionnal informations --- #
+        if self.verbose >= 1:
+            
+            for key, value in data_dict.items():
+                print(f"\n[RootInterface] Key : {key}")
+                #print(f"   Value (shape) : {value.shape}")
+                
+                if isinstance(value, np.ndarray):
+                    print(f"   Value is a np.ndarray.\n   Value[0].shape : {value[0].shape}")
+
+        print("")
+        return num_entries, data_dict    
 
 class ExtremaFinder:
     r"""
@@ -12,7 +68,8 @@ class ExtremaFinder:
     The keywords used at initialization must be the same ones called in compute_extrema. 
 
     Args:
-        *args: List of keys whom values to monitor in a dictionnary. Values are expected to be 1-d array each 
+        *args: List of keys whom values to monitor in a dictionnary. 
+        Values are expected to be 1-d array each 
     """
     
     def __init__(
@@ -37,11 +94,13 @@ class ExtremaFinder:
         """
         if isinstance(data, torch.Tensor):
             print("Input is a torch.Tensor. This format is currently not supported")
+            print("The only supported format for now is np.ndarray.")
             raise TypeError
 
-        # Compare the values 
+        # Get the min and max from the data
         x_min, x_max = np.min(data), np.max(data)
         
+        # Compare to the current min and max
         if not self.all_extrema[key]:
             self.all_extrema[key] = [x_min, x_max]
         else:
@@ -84,7 +143,6 @@ def convert_from_keys(data_dict, keys, index, to_tensor=False, to_types=None):
         features = torch.transpose(torch.stack(feature_list, dim=0), 1, 0)
 
     return features
-
 
 def match_type(to_type: str):
 
