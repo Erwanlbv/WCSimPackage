@@ -137,7 +137,7 @@ def convert_from_keys(data_dict, keys, index, to_tensor=False, to_types=None):
         feature_list.append(feature)
 
     # In the case of > 1 feature, transpose is needed to store as (node, features) in the Data object
-    if len(feature_list) == 1:
+    if feature_list[0].size() == ():
         features = torch.stack(feature_list, dim=0)
     else:
         features = torch.transpose(torch.stack(feature_list, dim=0), 1, 0)
