@@ -155,6 +155,8 @@ def match_type(to_type: str):
             torch_type = torch.float16
         case 'float32':
             torch_type = torch.float32
+        case 'float64':
+            torch_type = torch.float64
         case _:
             print(f"Value Error, to_type {to_type} is not supported")
             print("Add the data type into the transform or change the new target type")
