@@ -9,3 +9,6 @@ src/__pycache__
 
 # archived files
 src/archive
+
+# wandb logs
+wandb/
