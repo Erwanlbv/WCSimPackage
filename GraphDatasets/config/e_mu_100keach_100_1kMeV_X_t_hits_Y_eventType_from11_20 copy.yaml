@@ -1,0 +1,67 @@
+verbose: 1
+
+# Variables to manage the root file
+root_folder_path: /sps/t2k/eleblevec/datasets/wcsimroot_datasets/hk
+root_file_names:
+  - electron/11/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_11.root
+  - electron/12/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_12.root
+  - electron/13/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_13.root
+  - electron/14/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_14.root
+  - electron/15/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_15.root
+  - electron/16/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_16.root
+  - electron/17/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_17.root
+  - electron/18/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_18.root
+  - electron/19/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_19.root
+  - electron/20/HK_NomPMTs_SDO_100_1kMeV_10kevents_e-_20.root
+  - muon/11/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_11.root
+  - muon/12/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_12.root
+  - muon/13/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_13.root
+  - muon/14/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_14.root
+  - muon/15/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_15.root
+  - muon/16/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_16.root
+  - muon/17/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_17.root
+  - muon/18/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_18.root
+  - muon/19/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_19.root
+  - muon/20/HK_NomPMTs_SDO_100_1kMeV_10kevents_mu-_20.root
+
+tree_name: 'root_event' # depending on wcsimroot_to_root
+
+
+# Where to save the dataset containing the graphs
+graph_folder_path: /sps/t2k/eleblevec/datasets/graph_datasets/e_mu_100keach_100_1kMev_X_hits_t_Y_eventT_from11_20
+
+graph_file_names:
+  - data.pt
+
+# How many events to store (starting from event 0)
+# for EACH .root file
+# null means all the events
+nb_datapoints: null
+
+train_data_info: 
+  keys : ['hitx','hity', 'hitz', 'time']
+  types: ['float32', 'float32', 'float32', 'float32']
+
+label_data_info:
+  keys : ['eventType']
+  types: ['int16']
+
+edge_data_info:
+  keys : ['hitx', 'hity', 'hitz']
+  types: ['float32', 'float32', 'float32']
+
+# If the data shoudl be stored as torch.Tensor. 
+# For now only 'Yes' is supported
+to_torch_tensor: True
+
+# Transformations to apply only once to the data
+# during the graph processing
+# ARE YOU SURE THIS IS NOT SUPPOSED TO BE DONE IN CAVERNS ?
+pre_transform:
+  kNN: 
+    k: 5
+    num_workers: 1
+
+
+
+        

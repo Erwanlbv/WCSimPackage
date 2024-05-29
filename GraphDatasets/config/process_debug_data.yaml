@@ -1,14 +1,15 @@
 verbose: 1
 
 # Variables to manage the root file
-root_folder_path: /sps/t2k/eleblevec/datasets/root_datasets/before_april
-tree_name: 'root_event' # depending on wcsimroot_to_root
+root_folder_path: /sps/t2k/eleblevec/datasets/root_datasets/before_april/
 root_file_names:
   - e_mu_500MeV_10events_each.root
 
+tree_name: 'root_event' # depending on wcsimroot_to_root
+
 
 # Where to save the dataset containing the graphs
-graph_folder_path: /sps/t2k/eleblevec/WCSimPackage/GraphDatasets
+graph_folder_path: /sps/t2k/eleblevec/datasets/graph_datasets/debug/
 
 graph_file_names:
   - data.pt
@@ -16,11 +17,11 @@ graph_file_names:
 # How many events to store (starting from event 0)
 # for EACH .root file
 # null means all the events
-nb_datapoints: 15
+nb_datapoints: null
 
 train_data_info: 
-  keys : ['time', 'charge']
-  types: ['float32', 'float32']
+  keys : ['hitx','hity', 'hitz', 'time']
+  types: ['float32', 'float32', 'float32', 'float32']
 
 label_data_info:
   keys : ['eventType']
@@ -28,7 +29,7 @@ label_data_info:
 
 edge_data_info:
   keys : ['hitx', 'hity', 'hitz']
-  types: ['float16', 'float16', 'float16']
+  types: ['float32', 'float32', 'float32']
 
 # If the data shoudl be stored as torch.Tensor. 
 # For now only 'Yes' is supported
@@ -39,9 +40,14 @@ to_torch_tensor: True
 # ARE YOU SURE THIS IS NOT SUPPOSED TO BE DONE IN CAVERNS ?
 pre_transform:
   kNN: 
-    k: 8
+    k: 5
     num_workers: 1
 
+wandb:
+  entity: erwanlbv
+  project: database
 
-
-        
+  tags: 
+    - debug
+    
+  notes: Debug of plot_features et plot_model_summary
